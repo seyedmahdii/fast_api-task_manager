@@ -6,7 +6,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 class Database:
-  client = Optional[AsyncIOMotorClient] = None
+  client : Optional[AsyncIOMotorClient] = None
   database = None
   
 async def connect_to_mongo():
