@@ -4,6 +4,7 @@ from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from app.auth.password import hash_password, verify_password
 from bson import ObjectId
 from typing import Optional, List
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,9 @@ class UserService:
         "full_name": user_data.full_name,
         "hashed_password": hashed_password,
         "is_active": True,
-        "is_superuser": False
+        "is_superuser": False,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
       }
       
       result = await self.collection.insert_one(user_doc)
