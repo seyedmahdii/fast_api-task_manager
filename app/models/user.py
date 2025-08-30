@@ -16,7 +16,8 @@ class PyObjectId(ObjectId):
     return ObjectId(v)
   
   @classmethod
-  def __modify_schema__(cls, field_schema):
+  # def __modify_schema__(cls, field_schema):
+  def __get_pydantic_json_schema__(cls, field_schema):
     field_schema.update(type="string")
   
 class UserModel(BaseModel):
@@ -32,10 +33,12 @@ class UserModel(BaseModel):
   updated_at: datetime = Field(default_factory=datetime.utcnow)
   
   class Config:
-    allow_population_by_field_name = True
+    # allow_population_by_field_name = True
+    validate_by_name = True
     arbitrary_types_allowed = True
     json_encoders = {ObjectId: str}
-    schema_extra = {
+    # schema_extra = {
+    json_schema_extra = {
       "example": {
         "email": "user@example.com",
         "username": "user123",
