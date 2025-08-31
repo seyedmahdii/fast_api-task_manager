@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import Field, BaseModel
 from typing import Optional
-from datetime import datetime
 from bson import ObjectId
+from datetime import datetime
+from enum import Enum
 
 class PyObjectId(ObjectId): 
   """Custom ObjectId for MongoDB compatibility"""
@@ -16,34 +17,36 @@ class PyObjectId(ObjectId):
     return ObjectId(v)
   
   @classmethod
-  # def __modify_schema__(cls, field_schema):
   def __get_pydantic_json_schema__(cls, field_schema):
     field_schema.update(type="string")
-  
-class UserModel(BaseModel):
-  """User document model for MongoDB"""
+
+class TaskStatus(str, Enum):
+  PENDING = "pending"
+  IN_PROGRESS = "in_progress"
+  COMPLETED = "completed"
+  CANCELLED = "cancelled"
+
+class TaskModel(BaseModel):
+  """Task Document for MongoDB"""
   id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
-  email: EmailStr = Field(unique=True, index=True)
-  username: str = Field(min_length=3, max_length=50)
-  full_name: str = Field(min_length=3, max_length=50)
-  hashed_password: str
-  is_active: bool = Field(default=True)
-  is_superuser: bool = Field(default=False)
+  title: str = Field(min_length=3, max_length=50)
+  status: TaskStatus = Field(default=TaskStatus.PENDING)
+  created_by: str
+  completed_at: Optional[datetime] = None
   created_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
   updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
   
   class Config:
-    # allow_population_by_field_name = True
     validate_by_name = True
     arbitrary_types_allowed = True
     json_encoders = {ObjectId: str}
-    # schema_extra = {
     json_schema_extra = {
       "example": {
-        "email": "user@example.com",
-        "username": "user123",
-        "full_name": "John Doe",
-        "is_active": True,
-        "is_superuser": False,
+        "title": "Read some articles",
+        "status": "pending",
+        "created_by": "user123",
+        "completed_at": None,
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
       }
     }
