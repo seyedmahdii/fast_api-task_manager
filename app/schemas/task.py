@@ -1,26 +1,20 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
-from app.models.task import TaskStatus
+from app.models.task import TaskStatus, TaskModel
 
-class TaskBase(BaseModel):
-  title: str = Field(min_length=3, max_length=50)
-  
-class TaskCreate(TaskBase):
+class TaskBase(TaskModel):
   pass
-
-class TaskUpdate(TaskBase):
-  status: TaskStatus = Field(default=TaskStatus.PENDING)
-  completed_at: Optional[datetime] = None
-
-class TaskResponse(TaskBase):
-  id: str
-  status: TaskStatus = Field(default=TaskStatus.PENDING)
-  completed_at: Optional[datetime] = None
-  created_by: str
-  created_at: datetime
-  updated_at: datetime
   
+class TaskCreate(BaseModel):
+  title: str
+  created_by: str
+
+class TaskUpdate(BaseModel):
+  title: Optional[str] = str
+  status: Optional[TaskStatus] = None
+  completed_at: Optional[datetime] = None
+
+class TaskResponse(TaskModel):
   class Config:
     from_attributes = True
-
