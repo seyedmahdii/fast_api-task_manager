@@ -6,7 +6,7 @@ import os
 
 SECRET_KEY = "your-secret-key-here-change-in-production"  # TODO: Move to environment variables
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Create JWT access token"""
