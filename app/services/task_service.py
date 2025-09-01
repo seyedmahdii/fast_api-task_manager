@@ -97,7 +97,7 @@ class TaskService:
   async def get_user_all_tasks(self, user_id: str, skip: int = 0, limit: int = 50) -> List[TaskResponse]:
     """Get all tasks of a user"""
     try: 
-      cursor = await self.collection.find({"created_by": user_id}).skip(skip).limit(limit)
+      cursor = self.collection.find({"created_by": user_id}).skip(skip).limit(limit)
       tasks = []
       async for doc in cursor:
         tasks.append(TaskResponse(

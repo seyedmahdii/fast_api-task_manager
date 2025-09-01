@@ -1,4 +1,5 @@
 import logging
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -33,7 +34,31 @@ async def create_task(task_data: TaskCreate, credentials: HTTPAuthorizationCrede
   except Exception as e:
     logger.error(f"Error creating a new task: {e}")
     raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="Internal server error"
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="Internal server error"
     )
     
+@router.get("/", response_model=List[TaskResponse])
+async def get_current_user_tasks(credentials: HTTPAuthorizationCredentials=Depends(security)):
+  """Get all tasks of current user"""
+  try:
+    user_data = verify_token(credentials.credentials)
+    if not user_data:
+      raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired token"
+      )
+    
+    task_service = TaskService()
+    tasks = await task_service.get_user_all_tasks(user_data.id)
+    logger.info(f"All tasks retrieved")
+    
+    return tasks
+  except HTTPException:
+    raise
+  except Exception as e:
+    logger.error(f"Error getting all tasks: {e}")
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="Internal server error"
+    )
