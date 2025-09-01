@@ -1,7 +1,7 @@
 import logging
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.security import HTTPBearer
 
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.schemas.user import UserInToken
@@ -33,11 +33,15 @@ async def create_task(task_data: TaskCreate, current_user: UserInToken = Depends
     )
     
 @router.get("/", response_model=List[TaskResponse])
-async def get_current_user_tasks(current_user: UserInToken = Depends(get_current_user)):
+async def get_current_user_tasks(
+  skip: int = Query(0, ge=0, description="Number of tasks to skip"),
+  limit: int = Query(50, ge=1, le=100, description="Number of tasks to return (1-100)"),
+  current_user: UserInToken = Depends(get_current_user)
+):
   """Get all tasks of current user"""
   try:    
     task_service = TaskService()
-    tasks = await task_service.get_user_all_tasks(current_user.id)
+    tasks = await task_service.get_user_all_tasks(current_user.id, skip, limit)
     logger.info(f"All tasks retrieved")
     
     return tasks
