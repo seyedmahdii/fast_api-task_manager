@@ -1,0 +1,27 @@
+services:
+  # Your FastAPI app
+  app:
+    build: . # Build from Dockerfile
+    ports:
+      - "8000:8000" # Map host port 8000 to container port 8000
+    volumes:
+      - .:/app # Mount current directory for live reload
+      - /app/venv # Exclude venv from volume mount
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/task_manager
+    depends_on:
+      - mongo # Wait for mongo to start first
+    command: fastapi dev main.py --host 0.0.0.0 --port 8000
+
+  # MongoDB database
+  mongo:
+    image: mongo:7.0 # Official MongoDB image
+    ports:
+      - "27017:27017" # Map MongoDB port
+    volumes:
+      - mongo_data:/data/db # Persist database data
+    environment:
+      - MONGO_INITDB_DATABASE=task_manager
+
+volumes:
+  mongo_data: # Named volume for MongoDB data

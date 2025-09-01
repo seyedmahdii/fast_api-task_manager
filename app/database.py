@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ConnectionFailure
 import logging
+import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,8 @@ class Database:
 async def connect_to_mongo():
   """Create database connection"""
   try:
-    mongo_url = "mongodb://localhost:27017"
+    # Get MongoDB URL from environment variable or use default
+    mongo_url = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
     Database.client = AsyncIOMotorClient(mongo_url)
     Database.database = Database.client.task_manager
     
