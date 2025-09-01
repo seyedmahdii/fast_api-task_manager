@@ -71,13 +71,13 @@ class TaskService:
       if result.modified_count > 0:
         task = await self.get_task_by_id(task_id)
         return TaskResponse(
-          id=str(task["_id"]),
-          title=task["title"],
-          status=task["status"],
-          created_by=task["created_by"],
-          completed_at=task.get("completed_at"),
-          created_at=task["created_at"],
-          updated_at=task["updated_at"],
+          id=str(task.id),
+          title=task.title,
+          status=task.status,
+          created_by=task.created_by,
+          completed_at=task.completed_at,
+          created_at=task.created_at,
+          updated_at=task.updated_at,
         )
       return None
     except Exception as e:
