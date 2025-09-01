@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
 # Import PyObjectId from task.py to avoid duplication
 from app.models.task import PyObjectId
@@ -14,8 +14,8 @@ class UserModel(BaseModel):
   hashed_password: str
   is_active: bool = Field(default=True)
   is_superuser: bool = Field(default=False)
-  created_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
-  updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
+  created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+  updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
   
   model_config = {
     "populate_by_name": True,

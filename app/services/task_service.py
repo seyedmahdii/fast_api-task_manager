@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from typing import Optional, List
 
@@ -21,8 +21,8 @@ class TaskService:
         "title": task_data.title,
         "status": TaskStatus.PENDING,
         "created_by": created_by,
-        "created_at": datetime.now(datetime.timezone.utc),
-        "updated_at": datetime.now(datetime.timezone.utc),
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc),
       }
       result = await self.collection.insert_one(new_task)
       created_task = await self.collection.find_one({"_id": result.inserted_id})
@@ -62,7 +62,7 @@ class TaskService:
         updated_task["status"] = task_data.status
       if task_data.completed_at is not None:
         updated_task["completed_at"] = task_data.completed_at
-      updated_task["updated_at"] = datetime.now(datetime.timezone.utc)
+      updated_task["updated_at"] = datetime.now(timezone.utc)
       
       result = await self.collection.update_one(
         {"_id": ObjectId(task_id)},

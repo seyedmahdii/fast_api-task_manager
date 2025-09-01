@@ -1,7 +1,7 @@
 from pydantic import Field, BaseModel
 from typing import Optional, Annotated
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pydantic import BeforeValidator, PlainSerializer
 
@@ -32,8 +32,8 @@ class TaskModel(BaseModel):
   status: TaskStatus = Field(default=TaskStatus.PENDING)
   created_by: str
   completed_at: Optional[datetime] = None
-  created_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
-  updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
+  created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+  updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
   
   model_config = {
     "populate_by_name": True,
