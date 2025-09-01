@@ -1,24 +1,23 @@
 from pydantic import Field, BaseModel
-from typing import Optional
+from typing import Optional, Annotated
 from bson import ObjectId
 from datetime import datetime
 from enum import Enum
+from pydantic import BeforeValidator, PlainSerializer
 
-class PyObjectId(ObjectId): 
-  """Custom ObjectId for MongoDB compatibility"""
-  @classmethod
-  def __get_validators__(cls):
-    yield cls.validate
-    
-  @classmethod
-  def validate(cls, v, handler):
-    if not ObjectId.is_valid(v):
-      raise ValueError("Invalid ObjectId")
-    return ObjectId(v)
-  
-  @classmethod
-  def __get_pydantic_json_schema__(cls, field_schema):
-    field_schema.update(type="string")
+def validate_object_id(v):
+    if isinstance(v, ObjectId):
+        return v
+    if isinstance(v, str) and ObjectId.is_valid(v):
+        return ObjectId(v)
+    raise ValueError("Invalid ObjectId")
+
+# Use Annotated with both validator and serializer for Pydantic v2
+PyObjectId = Annotated[
+    ObjectId,
+    BeforeValidator(validate_object_id),
+    PlainSerializer(lambda x: str(x), return_type=str)
+]
 
 class TaskStatus(str, Enum):
   PENDING = "pending"
@@ -28,7 +27,7 @@ class TaskStatus(str, Enum):
 
 class TaskModel(BaseModel):
   """Task Document for MongoDB"""
-  id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+  id: Optional[PyObjectId] = Field(default_factory=ObjectId, alias="_id")
   title: str = Field(min_length=3, max_length=50)
   status: TaskStatus = Field(default=TaskStatus.PENDING)
   created_by: str
@@ -36,11 +35,10 @@ class TaskModel(BaseModel):
   created_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
   updated_at: datetime = Field(default_factory=lambda: datetime.now(datetime.timezone.utc))
   
-  class Config:
-    validate_by_name = True
-    arbitrary_types_allowed = True
-    json_encoders = {ObjectId: str}
-    json_schema_extra = {
+  model_config = {
+    "populate_by_name": True,
+    "arbitrary_types_allowed": True,
+    "json_schema_extra": {
       "example": {
         "title": "Read some articles",
         "status": "pending",
@@ -50,3 +48,4 @@ class TaskModel(BaseModel):
         "updated_at": "2024-01-15T10:30:00Z"
       }
     }
+  }
