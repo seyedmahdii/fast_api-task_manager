@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import connect_to_mongo, close_mongo_connection
-from app.routes import auth
+from app.routes import auth, task
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,3 +30,4 @@ async def root():
   return {"message": "Task Manager API is running!"}
 
 app.include_router(auth.router)
+app.include_router(task.router)
