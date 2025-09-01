@@ -3,7 +3,6 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from app.auth.jwt import verify_token
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.schemas.user import UserInToken
 from app.services.task_service import TaskService
@@ -73,7 +72,7 @@ async def delete_task(task_id: str, current_user: UserInToken = Depends(get_curr
       detail="Internal server error"
     )
 
-@router.patch("/{task_id}", response_model=TaskUpdate)
+@router.patch("/{task_id}", response_model=TaskResponse)
 async def update_task(
   task_id: str, 
   task_data: TaskUpdate,

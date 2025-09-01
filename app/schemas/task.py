@@ -8,7 +8,6 @@ class TaskBase(TaskModel):
   
 class TaskCreate(BaseModel):
   title: str
-  created_by: str
 
 class TaskUpdate(BaseModel):
   title: Optional[str] = str
