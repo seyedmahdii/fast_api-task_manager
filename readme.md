@@ -79,3 +79,22 @@ Based on your current setup, here's what you need to implement and where:
 - **Auth** = Security and user verification
 
 Would you like me to explain any specific part in more detail, or do you want to start implementing one of these components?
+
+## **How to Run the Project:**
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate it (Linux/Mac)
+source venv/bin/activate
+
+# Or on Windows
+# venv\Scripts\activate
+
+# Install packages in the virtual environment
+pip install -r requirements.txt
+
+# Run the app
+fastapi dev main.py
+```
