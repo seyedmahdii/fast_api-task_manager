@@ -5,25 +5,20 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.auth.jwt import verify_token
 from app.schemas.task import TaskCreate, TaskResponse
+from app.schemas.user import UserInToken
 from app.services.task_service import TaskService
+from app.auth.dependencies import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 security = HTTPBearer()
 
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-async def create_task(task_data: TaskCreate, credentials: HTTPAuthorizationCredentials=Depends(security)):
+async def create_task(task_data: TaskCreate, current_user: UserInToken = Depends(get_current_user)):
   """Create a new task for the current user"""
   try:
-    user_data = verify_token(credentials.credentials)
-    if not user_data:
-      raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired token"
-      )
-
     task_service = TaskService()
-    new_task = await task_service.create_task(task_data,  user_data.id)
+    new_task = await task_service.create_task(task_data,  current_user.id)
     logger.info(f"New task created: {new_task}")
     
     return new_task
@@ -39,21 +34,28 @@ async def create_task(task_data: TaskCreate, credentials: HTTPAuthorizationCrede
     )
     
 @router.get("/", response_model=List[TaskResponse])
-async def get_current_user_tasks(credentials: HTTPAuthorizationCredentials=Depends(security)):
+async def get_current_user_tasks(current_user: UserInToken = Depends(get_current_user)):
   """Get all tasks of current user"""
-  try:
-    user_data = verify_token(credentials.credentials)
-    if not user_data:
-      raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired token"
-      )
-    
+  try:    
     task_service = TaskService()
-    tasks = await task_service.get_user_all_tasks(user_data.id)
+    tasks = await task_service.get_user_all_tasks(current_user.id)
     logger.info(f"All tasks retrieved")
     
     return tasks
+  except HTTPException:
+    raise
+  except Exception as e:
+    logger.error(f"Error getting all tasks: {e}")
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="Internal server error"
+    )
+    
+@router.delete("/{task_id}", response_model=bool)
+async def delete_task(task_id: str, current_user: UserInToken = Depends(get_current_user)):
+  """Delete a task"""
+  try:
+    pass
   except HTTPException:
     raise
   except Exception as e:
